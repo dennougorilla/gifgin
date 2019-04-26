@@ -1,0 +1,95 @@
+<script src='gifshot.js'></script>
+<link  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.1/cropper.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.1/cropper.js"></script>
+<script type="text/javascript" src="LZWEncoder.js"></script>
+<script type="text/javascript" src="NeuQuant.js"></script>
+<script type="text/javascript" src="GIFEncoder.js"></script>
+<script type="text/javascript" src="b64.js"></script>
+<script type="text/javascript" src="gif.js"></script>
+<script type="text/javascript" src="gif.worker.js"></script>
+
+<html>
+    <div>
+    <canvas id="canvas" width="800" height="1080"></canvas>
+    </div>
+    <input type="button" value="end" onclick="endCap()"/>
+    <body>
+    </body>
+</html>
+
+<script>
+
+    var display = document.createElement("video")
+    var canvas = document.getElementById("canvas");
+    var encoder = new GIFEncoder();
+    var framelist = []
+    var gif = new GIF({
+        width: 800,
+        height: 600,
+        workers: 0,
+        quality: 10
+    });
+    gif.on('start', function(){})
+    encoder.setRepeat(0); //0  -> loop forever
+    encoder.setDelay(4); //go to next frame every n milliseconds
+    encoder.start();
+    function snapshot() {
+        canvas.getContext("2d").drawImage(display, 0, 0, 800, 600);
+        gif.addFrame(canvas.getContext("2d"), {delay: 200})
+    }
+    navigator.mediaDevices.getDisplayMedia({ 
+        video: {
+            width: 800,
+            height: 600,
+            frameRate: 15
+        }
+    })
+        .then(stream => {
+
+            display.srcObject = stream
+            display.play()
+            setInterval(snapshot, 50); // Just so you don't need to click the button every time to see if the video actually lines up
+            // we have a stream, attach it to a feedback video element
+            //videoElement.srcObject = stream;
+        }, error => {
+            console.log("Unable to acquire screen capture", error);
+        });
+
+function endCap() {
+    gif.on('finished', function(blob) {
+        window.open(URL.createObjectURL(blob));
+    });
+    gif.render()
+
+}
+function startRecording(stream, lengthInMS) {
+  let recorder = new MediaRecorder(stream);
+  let data = [];
+ 
+  recorder.ondataavailable = event => data.push(event.data);
+  recorder.start();
+ 
+  let stopped = new Promise((resolve, reject) => {
+    recorder.onstop = resolve;
+    recorder.onerror = event => reject(event.name);
+  });
+
+  let recorded = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      recorder.state == "recording" && recorder.stop()
+      resolve();
+    }, lengthInMS);
+  });
+ 
+  return Promise.all([
+    stopped,
+    recorded
+  ])
+  .then(() => data);
+}
+</script>
+<style>
+canvas {
+  max-width: 100%; /* This rule is very important, please do not ignore this! */
+}
+</style>
