@@ -1,95 +1,85 @@
-<script src='gifshot.js'></script>
-<link  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.1/cropper.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.1/cropper.js"></script>
-<script type="text/javascript" src="LZWEncoder.js"></script>
-<script type="text/javascript" src="NeuQuant.js"></script>
-<script type="text/javascript" src="GIFEncoder.js"></script>
-<script type="text/javascript" src="b64.js"></script>
 <script type="text/javascript" src="gif.js"></script>
 <script type="text/javascript" src="gif.worker.js"></script>
+<script src="https://unpkg.com/@webcomponents/webcomponentsjs@latest/webcomponents-loader.js"></script>
+<script
+    async
+    src="https://unpkg.com/wired-elements@latest/dist/wired-elements.bundled.js"
+    >
+</script>
 
 <html>
+    <wired-slider id="sliderSx" knobradius="15" value="960" min="0" max="960"></wired-slider>
+    <wired-slider id="sliderSy" knobradius="15" value="540" min="0" max="540"></wired-slider>
+    <wired-slider id="sliderSDw" knobradius="15" value="960" min="0" max="960"></wired-slider>
+    <wired-slider id="sliderSDh" knobradius="15" value="540" min="0" max="540"></wired-slider>
     <div>
-    <canvas id="canvas" width="800" height="1080"></canvas>
+        <canvas id="canvas" width="960" height="540"></canvas>
     </div>
-    <input type="button" value="end" onclick="endCap()"/>
+    <wired-button type="button" value="start" onclick="starCap()" elevation="3">Start</wired-button>
+    <wired-button type="button" value="end" onclick="endCap()" elevation="3">End</wired-button>
     <body>
     </body>
 </html>
 
 <script>
 
+    var sx = document.getElementById("sliderSx")
+    var sy = document.getElementById("sliderSy")
+    var sdw = document.getElementById("sliderSDw")
+    var sdh = document.getElementById("sliderSDh")
+
     var display = document.createElement("video")
     var canvas = document.getElementById("canvas");
-    var encoder = new GIFEncoder();
-    var framelist = []
-    var gif = new GIF({
-        width: 800,
-        height: 600,
-        workers: 0,
-        quality: 10
-    });
-    gif.on('start', function(){})
-    encoder.setRepeat(0); //0  -> loop forever
-    encoder.setDelay(4); //go to next frame every n milliseconds
-    encoder.start();
-    function snapshot() {
-        canvas.getContext("2d").drawImage(display, 0, 0, 800, 600);
-        gif.addFrame(canvas.getContext("2d"), {delay: 200})
-    }
+    var cap = false
     navigator.mediaDevices.getDisplayMedia({ 
         video: {
-            width: 800,
-            height: 600,
+            width: 960,
+            height: 540,
             frameRate: 15
         }
     })
         .then(stream => {
-
             display.srcObject = stream
             display.play()
-            setInterval(snapshot, 50); // Just so you don't need to click the button every time to see if the video actually lines up
+            render = setInterval(snapshot, 50); // Just so you don't need to click the button every time to see if the video actually lines up
             // we have a stream, attach it to a feedback video element
             //videoElement.srcObject = stream;
         }, error => {
             console.log("Unable to acquire screen capture", error);
         });
+    function snapshot() {
+        canvas.width = sdw.value
+        canvas.height = sdh.value
+        canvas.getContext("2d").drawImage(display, sx.value, sy.value, sdw.value, sdh.value, 0, 0, sdw.value, sdh.value);
+        if(cap) {
+            gif.addFrame(canvas.getContext("2d"), {delay: 50, copy: true})
+        }
+    }
 
-function endCap() {
-    gif.on('finished', function(blob) {
-        window.open(URL.createObjectURL(blob));
-    });
-    gif.render()
-
-}
-function startRecording(stream, lengthInMS) {
-  let recorder = new MediaRecorder(stream);
-  let data = [];
- 
-  recorder.ondataavailable = event => data.push(event.data);
-  recorder.start();
- 
-  let stopped = new Promise((resolve, reject) => {
-    recorder.onstop = resolve;
-    recorder.onerror = event => reject(event.name);
-  });
-
-  let recorded = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      recorder.state == "recording" && recorder.stop()
-      resolve();
-    }, lengthInMS);
-  });
- 
-  return Promise.all([
-    stopped,
-    recorded
-  ])
-  .then(() => data);
-}
+    function starCap() {
+        cap = true
+        gif = new GIF({
+            width: sdw.value,
+            height: sdh.value,
+            workers: 2,
+            quality: 10
+        });
+        gif.on('progress', function(e){
+            console.log(e)
+        })
+        gif.on('finished', function(blob) {
+            window.open(URL.createObjectURL(blob));
+        });
+    }
+    function endCap() {
+        cap = false
+        gif.render()
+        clearInterval(render)
+    }
 </script>
 <style>
 canvas {
-  max-width: 100%; /* This rule is very important, please do not ignore this! */
+    max-width: 100%; /* This rule is very important, please do not ignore this! */
 }
 </style>
