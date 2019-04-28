@@ -1,3 +1,4 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.1/cropper.js"></script>
 <script type="text/javascript" src="gif.js"></script>
 <script type="text/javascript" src="gif.worker.js"></script>
 <script src="https://unpkg.com/@webcomponents/webcomponentsjs@latest/webcomponents-loader.js"></script>
@@ -80,9 +81,19 @@
     var cap = false
     var img = new Image();
     img.src = "selectScreen.png"
-    layer1.getContext("2d").drawImage(img, 0, 0);
+    img.onload = function() {
+        layer1.getContext("2d").drawImage(img, 0, 0);
+    }
     
-    toggle.addEventListener("change", function(e) {if (toggle.checked) {getDisplayVideo()} else {stopCapture()}}, false);
+    toggle.addEventListener("change", 
+        function(e) {
+            if (toggle.checked) {
+                getDisplayVideo()
+            } else {
+                stopCapture()
+                clear(layer2)
+            }
+        }, false);
 
     function getDisplayVideo() {
     navigator.mediaDevices.getDisplayMedia({ 
