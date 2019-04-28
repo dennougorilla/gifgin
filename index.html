@@ -30,7 +30,8 @@
             <wired-item value=80>quality = 80</wired-item>
             <wired-item value=90>quality = 90</wired-item>
             <wired-item value=100>quality = 100</wired-item>
-        </wired-combo><br><br>
+        </wired-combo>
+        <wired-toggle id="toggle" style="top:20px"></wired-toggle><br><br>
         <wired-progress id="progress" value="0" min="0" max="100"></wired-progress><br><br>
         <wired-button 
             id = "start"
@@ -49,6 +50,15 @@
             style="left:10px;">
             End
         </wired-button>
+        <wired-button  
+            id = "screenShot" 
+            type="button" 
+            value="screenShot" 
+            onclick="screenShot()" 
+            elevation="3" 
+            style="left:40px;">
+            Screen Shot
+        </wired-button>
     </div>
 </html>
 
@@ -63,11 +73,19 @@
     var layer1 = document.getElementById("layer1")
     var layer2 = document.getElementById("layer2")
     var progress = document.getElementById("progress")
+    var toggle = document.getElementById("toggle")
     var quality = document.getElementById("quality")
     var sp = document.getElementById("sp")   
     var videoElem = document.createElement("video")
     var source = document.createElement("canvas");
     var cap = false
+    var img = new Image();
+    img.src = "selectScreen.png"
+    layer1.getContext("2d").drawImage(img, 0, 0);
+    
+    toggle.addEventListener("change", function(e) {if (toggle.checked) {getDisplayVideo()} else {stopCapture()}}, false);
+
+    function getDisplayVideo() {
     navigator.mediaDevices.getDisplayMedia({ 
         video: {
             width: 960,
@@ -84,6 +102,7 @@
         }, error => {
             console.log("Unable to acquire screen capture", error);
         });
+    }
     function snapshot() {
         source.width = sdw
         source.height = sdh
@@ -92,6 +111,12 @@
         if(cap) {
             gif.addFrame(source.getContext("2d"), {delay: 50, copy: true})
         }
+    }
+    function screenShot() {
+        progress.value = 100 
+        source.toBlob(function(blob) {
+            window.open(URL.createObjectURL(blob));
+        });
     }
 
     function starCap() {
@@ -116,8 +141,6 @@
         sp.style.color = "black"
         sp.spinning = false
         gif.render()
-        clearInterval(render)
-        stopCapture()
     }
 
     layer2.addEventListener("click", onClick, false);
@@ -142,6 +165,7 @@
         }
     }
     function stopCapture(evt) {
+        layer1.getContext("2d").drawImage(img, 0, 0);
         let tracks = videoElem.srcObject.getTracks();
 
         tracks.forEach(track => track.stop());
