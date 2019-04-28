@@ -52,7 +52,7 @@
     var layer2 = document.getElementById("layer2")
     var progress = document.getElementById("progress")
     var sp = document.getElementById("sp")   
-    var display = document.createElement("video")
+    var videoElem = document.createElement("video")
     var source = document.createElement("canvas");
     var cap = false
     navigator.mediaDevices.getDisplayMedia({ 
@@ -63,8 +63,8 @@
         }
     })
         .then(stream => {
-            display.srcObject = stream
-            display.play()
+            videoElem.srcObject = stream
+            videoElem.play()
             render = setInterval(snapshot, 50); // Just so you don't need to click the button every time to see if the video actually lines up
             // we have a stream, attach it to a feedback video element
             //videoElement.srcObject = stream;
@@ -74,8 +74,8 @@
     function snapshot() {
         source.width = sdw
         source.height = sdh
-        layer1.getContext("2d").drawImage(display, 0, 0, 960, 540);
-        source.getContext("2d").drawImage(display, sx, sy, sdw, sdh, 0, 0, sdw, sdh);
+        layer1.getContext("2d").drawImage(videoElem, 0, 0, 960, 540);
+        source.getContext("2d").drawImage(videoElem, sx, sy, sdw, sdh, 0, 0, sdw, sdh);
         if(cap) {
             gif.addFrame(source.getContext("2d"), {delay: 50, copy: true})
         }
@@ -104,6 +104,7 @@
         sp.spinning = false
         gif.render()
         clearInterval(render)
+        stopCapture()
     }
 
     layer2.addEventListener("click", onClick, false);
@@ -126,6 +127,12 @@
             fillRect(layer2, end.x, begin.y, layer2.width - begin.x, end.y - begin.y, fill); // right
             fillRect(layer2, 0, end.y, layer2.width, layer2.height - end.y, fill); // bottom
         }
+    }
+    function stopCapture(evt) {
+        let tracks = videoElem.srcObject.getTracks();
+
+        tracks.forEach(track => track.stop());
+        videoElem.srcObject = null;
     }
 
     function clear(canvas) {
