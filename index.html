@@ -9,28 +9,51 @@
 </script>
 
 <html>
-    <wired-slider id="sliderSx" knobradius="15" value="960" min="0" max="960"></wired-slider>
-    <wired-slider id="sliderSy" knobradius="15" value="540" min="0" max="540"></wired-slider>
-    <wired-slider id="sliderSDw" knobradius="15" value="960" min="0" max="960"></wired-slider>
-    <wired-slider id="sliderSDh" knobradius="15" value="540" min="0" max="540"></wired-slider>
+    <title>gifgin</title>
     <div>
-        <canvas id="canvas" width="960" height="540"></canvas>
+    <span><font size="7">gifgin</font></span>
+    <wired-spinner id="sp" style="top:20px;"></wired-spinner>
+    <div>
+    <div style="position: relative;">
+        <canvas id="layer1" width="960" height="540" style="position:absolute; z-index: 0;"></canvas>
+        <canvas id="layer2" width="960" height="540" style="position: absolute; z-index: 1;"></canvas>
     </div>
-    <wired-button type="button" value="start" onclick="starCap()" elevation="3">Start</wired-button>
-    <wired-button type="button" value="end" onclick="endCap()" elevation="3">End</wired-button>
-    <body>
-    </body>
+    <div style="position: relative; top: 560px;">
+        <wired-progress id="progress" value="0" min="0" max="100"></wired-progress><br><br>
+        <wired-button 
+            id = "start"
+            type="button"
+            value="start"
+            onclick="starCap()"
+            elevation="3">
+            Start
+        </wired-button>
+        <wired-button  
+            id = "end" 
+            type="button" 
+            value="end" 
+            onclick="endCap()" 
+            elevation="3" 
+            style="left:10px;">
+            End
+        </wired-button>
+    </div>
 </html>
 
 <script>
+    var is_down = false;
 
-    var sx = document.getElementById("sliderSx")
-    var sy = document.getElementById("sliderSy")
-    var sdw = document.getElementById("sliderSDw")
-    var sdh = document.getElementById("sliderSDh")
+    var sx = 0
+    var sy = 0
+    var sdw = 960
+    var sdh = 540
 
+    var layer1 = document.getElementById("layer1")
+    var layer2 = document.getElementById("layer2")
+    var progress = document.getElementById("progress")
+    var sp = document.getElementById("sp")   
     var display = document.createElement("video")
-    var canvas = document.getElementById("canvas");
+    var source = document.createElement("canvas");
     var cap = false
     navigator.mediaDevices.getDisplayMedia({ 
         video: {
@@ -49,24 +72,27 @@
             console.log("Unable to acquire screen capture", error);
         });
     function snapshot() {
-        canvas.width = sdw.value
-        canvas.height = sdh.value
-        canvas.getContext("2d").drawImage(display, sx.value, sy.value, sdw.value, sdh.value, 0, 0, sdw.value, sdh.value);
+        source.width = sdw
+        source.height = sdh
+        layer1.getContext("2d").drawImage(display, 0, 0, 960, 540);
+        source.getContext("2d").drawImage(display, sx, sy, sdw, sdh, 0, 0, sdw, sdh);
         if(cap) {
-            gif.addFrame(canvas.getContext("2d"), {delay: 50, copy: true})
+            gif.addFrame(source.getContext("2d"), {delay: 50, copy: true})
         }
     }
 
     function starCap() {
         cap = true
+        sp.style.color = "red"
+        sp.spinning = true
         gif = new GIF({
-            width: sdw.value,
-            height: sdh.value,
+            width: sdw,
+            height: sdh,
             workers: 2,
             quality: 10
         });
-        gif.on('progress', function(e){
-            console.log(e)
+        gif.on('progress', function(ptx){
+           progress.value = ptx*100 
         })
         gif.on('finished', function(blob) {
             window.open(URL.createObjectURL(blob));
@@ -74,12 +100,57 @@
     }
     function endCap() {
         cap = false
+        sp.style.color = "black"
+        sp.spinning = false
         gif.render()
         clearInterval(render)
     }
+
+    layer2.addEventListener("click", onClick, false);
+
+    function onClick(e) {
+        var rect = e.target.getBoundingClientRect();
+        if (!is_down) {
+            begin = {x: e.clientX - rect.left, y: e.clientY - rect.top};
+            is_down = true
+        } else {
+            is_down = false
+            end = {x: e.clientX - rect.left, y: e.clientY - rect.top};
+            setXYWH(begin, end)
+            var fill = "rgba(0, 0, 0, 0.5)";
+            fillRect(layer2, 0, 0, layer2.width, begin.y, fill); // top
+            fillRect(layer2, 0, begin.y, begin.x, end.y - begin.y, fill); // left
+            fillRect(layer2, end.x, begin.y, layer2.width - begin.x, end.y - begin.y, fill); // right
+            fillRect(layer2, 0, end.y, layer2.width, layer2.height - end.y, fill); // bottom
+        }
+    }
+
+    function setXYWH(begin, end) {
+        sdw = Math.abs(begin.x - end.x)
+        sdh = Math.abs(begin.y - end.y)
+        if (begin.x < end.x && begin.y < end.y) {
+            sx = begin.x
+            sy = begin.y
+        } else if (end.x < begin.x && end.y < begin.y) {
+            sx = end.x
+            sy = end.y
+        }
+    }
+    function fillRect(canvas, x, y, width, height, style) {
+        var ctx =  canvas.getContext("2d");
+        ctx.beginPath();
+        ctx.rect(x, y, width, height);
+        ctx.fillStyle = style;
+        ctx.fill();
+    }
+  function drawRect(canvas, x, y, width, height, line, style) {
+    var ctx =  canvas.getContext("2d");
+    ctx.beginPath();
+    ctx.rect(x, y, width, height);
+    ctx.lineWidth = line;
+    ctx.strokeStyle = style;
+    ctx.stroke();
+  }
 </script>
 <style>
-canvas {
-    max-width: 100%; /* This rule is very important, please do not ignore this! */
-}
 </style>
