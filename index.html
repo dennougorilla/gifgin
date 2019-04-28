@@ -111,9 +111,12 @@
     function onClick(e) {
         var rect = e.target.getBoundingClientRect();
         if (!is_down) {
+            sp.spinning = true
+            clear(layer2)
             begin = {x: e.clientX - rect.left, y: e.clientY - rect.top};
             is_down = true
         } else {
+            sp.spinning = false
             is_down = false
             end = {x: e.clientX - rect.left, y: e.clientY - rect.top};
             setXYWH(begin, end)
@@ -123,6 +126,11 @@
             fillRect(layer2, end.x, begin.y, layer2.width - begin.x, end.y - begin.y, fill); // right
             fillRect(layer2, 0, end.y, layer2.width, layer2.height - end.y, fill); // bottom
         }
+    }
+
+    function clear(canvas) {
+        var ctx =  canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
     function setXYWH(begin, end) {
