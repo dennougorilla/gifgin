@@ -10,56 +10,77 @@
 
 <html>
     <title>gifgin</title>
-    <div>
-    <span><font size="7">gifgin</font></span>
-    <wired-spinner id="sp" style="top:20px;"></wired-spinner>
-    <div>
-    <div style="position: relative;">
-        <canvas id="layer1" width="960" height="540" style="position:absolute; z-index: 0;"></canvas>
-        <canvas id="layer2" width="960" height="540" style="position: absolute; z-index: 1;"></canvas>
-    </div>
-    <div style="position: relative; top: 560px;">
-        <wired-combo id="quality" selected=100>
-            <wired-item value=10>quality = 10</wired-item>
-            <wired-item value=20>quality = 20</wired-item>
-            <wired-item value=30>quality = 30</wired-item>
-            <wired-item value=40>quality = 40</wired-item>
-            <wired-item value=50>quality = 50</wired-item>
-            <wired-item value=60>quality = 60</wired-item>
-            <wired-item value=70>quality = 70</wired-item>
-            <wired-item value=80>quality = 80</wired-item>
-            <wired-item value=90>quality = 90</wired-item>
-            <wired-item value=100>quality = 100</wired-item>
-        </wired-combo>
-        <wired-toggle id="toggle" style="top:20px"></wired-toggle><br><br>
-        <wired-progress id="progress" value="0" min="0" max="100"></wired-progress><br><br>
-        <wired-button 
-            id = "start"
-            type="button"
-            value="start"
-            onclick="starCap()"
-            elevation="3">
-            Start
-        </wired-button>
-        <wired-button  
-            id = "end" 
-            type="button" 
-            value="end" 
-            onclick="endCap()" 
-            elevation="3" 
-            style="left:10px;">
-            End
-        </wired-button>
-        <wired-button  
-            id = "screenShot" 
-            type="button" 
-            value="screenShot" 
-            onclick="screenShot()" 
-            elevation="3" 
-            style="left:40px;">
-            Screen Shot
-        </wired-button>
-    </div>
+    <body style="justify-content:center;">
+        <div>
+            <span><font size="7">gifgin</font></span>
+            <wired-spinner id="sp" style="top:20px;"></wired-spinner>
+            <div>
+                <div style="position: relative;">
+                    <canvas
+                        id="layer1"
+                        width="960"
+                        height="540"
+                        style="position:absolute; z-index: 0;">
+                    </canvas>
+                    <canvas
+                        id="layer2"
+                        width="960"
+                        height="540"
+                        style="position: absolute; z-index: 1;">
+                    </canvas>
+                </div>
+                <div style="position: relative; top: 560px;">
+                    <wired-combo id="quality" selected=100>
+                        <wired-item value=10>quality = 10</wired-item>
+                        <wired-item value=20>quality = 20</wired-item>
+                        <wired-item value=30>quality = 30</wired-item>
+                        <wired-item value=40>quality = 40</wired-item>
+                        <wired-item value=50>quality = 50</wired-item>
+                        <wired-item value=60>quality = 60</wired-item>
+                        <wired-item value=70>quality = 70</wired-item>
+                        <wired-item value=80>quality = 80</wired-item>
+                        <wired-item value=90>quality = 90</wired-item>
+                        <wired-item value=100>quality = 100</wired-item>
+                    </wired-combo>
+                    <wired-toggle id="toggle" style="top:20px"></wired-toggle><br><br>
+                    <wired-progress
+                        id="progress"
+                        value="0"
+                        min="0"
+                    max="100">
+                    </wired-progress><br><br>
+                    <wired-button 
+                        id = "start"
+                        type="button"
+                        value="start"
+                        onclick="starCap()"
+                        elevation="3">
+                        Start
+                    </wired-button>
+                    <wired-button  
+                        id = "end" 
+                        type="button" 
+                        value="end" 
+                        onclick="endCap()" 
+                        elevation="3" 
+                        style="left:10px;">
+                        End
+                    </wired-button>
+                    <wired-button  
+                        id = "screenShot" 
+                        type="button" 
+                        value="screenShot" 
+                        onclick="screenShot()" 
+                        elevation="3" 
+                        style="left:40px;">
+                        Screen Shot
+                    </wired-button>
+                </div>
+                <footer style="width:90%; bottom:0; position:absolute; background-color:white;">
+                    <a href="https://github.com/dennougorilla/gifgin">github</a>  /
+                    made by <a href="https://twitter.com/dennougorilla">dennougorilla</a>
+                </footer>
+    </body>
 </html>
 
 <script>
@@ -84,7 +105,7 @@
     img.onload = function() {
         layer1.getContext("2d").drawImage(img, 0, 0);
     }
-    
+
     toggle.addEventListener("change", 
         function(e) {
             if (toggle.checked) {
@@ -96,22 +117,22 @@
         }, false);
 
     function getDisplayVideo() {
-    navigator.mediaDevices.getDisplayMedia({ 
-        video: {
-            width: 960,
-            height: 540,
-            frameRate: 15
-        }
-    })
-        .then(stream => {
-            videoElem.srcObject = stream
-            videoElem.play()
-            render = setInterval(snapshot, 50); // Just so you don't need to click the button every time to see if the video actually lines up
-            // we have a stream, attach it to a feedback video element
-            //videoElement.srcObject = stream;
-        }, error => {
-            console.log("Unable to acquire screen capture", error);
-        });
+        navigator.mediaDevices.getDisplayMedia({ 
+            video: {
+                width: 960,
+                height: 540,
+                frameRate: 15
+            }
+        })
+            .then(stream => {
+                videoElem.srcObject = stream
+                videoElem.play()
+                render = setInterval(snapshot, 50); // Just so you don't need to click the button every time to see if the video actually lines up
+                // we have a stream, attach it to a feedback video element
+                //videoElement.srcObject = stream;
+            }, error => {
+                console.log("Unable to acquire screen capture", error);
+            });
     }
     function snapshot() {
         source.width = sdw
@@ -140,7 +161,7 @@
             quality: quality.selected
         });
         gif.on('progress', function(ptx){
-           progress.value = ptx*100 
+            progress.value = ptx*100 
         })
         gif.on('finished', function(blob) {
             window.open(URL.createObjectURL(blob));
@@ -183,7 +204,11 @@
     }
 
     function clear(canvas) {
-        var ctx =  canvas.getContext("2d");
+        sx = 0
+        sy = 0
+        sdw = 960
+        sdh = 540
+        ctx =  canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -205,14 +230,14 @@
         ctx.fillStyle = style;
         ctx.fill();
     }
-  function drawRect(canvas, x, y, width, height, line, style) {
-    var ctx =  canvas.getContext("2d");
-    ctx.beginPath();
-    ctx.rect(x, y, width, height);
-    ctx.lineWidth = line;
-    ctx.strokeStyle = style;
-    ctx.stroke();
-  }
+    function drawRect(canvas, x, y, width, height, line, style) {
+        var ctx =  canvas.getContext("2d");
+        ctx.beginPath();
+        ctx.rect(x, y, width, height);
+        ctx.lineWidth = line;
+        ctx.strokeStyle = style;
+        ctx.stroke();
+    }
 </script>
 <style>
 </style>
