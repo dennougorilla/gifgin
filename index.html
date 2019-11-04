@@ -1,85 +1,56 @@
 <script type="text/javascript" src="gif.js"></script>
 <script type="text/javascript" src="gif.worker.js"></script>
 <script src="https://unpkg.com/wired-elements@latest/dist/wired-elements.bundled.js"></script>
-<script
-    async
-    src="https://unpkg.com/wired-elements@latest/dist/wired-elements.bundled.js"
-    >
-</script>
 
 <html>
-    <title>gifgin</title>
-    <body style="justify-content:center;">
+<title>gifgin</title>
+
+<body style="justify-content:center;">
+    <div>
+        <span>
+            <font size="7">gifgin</font>
+        </span>
+        <wired-spinner id="sp" style="top:20px;"></wired-spinner>
         <div>
-            <span><font size="7">gifgin</font></span>
-            <wired-spinner id="sp" style="top:20px;"></wired-spinner>
-            <div>
-                <div style="position: relative;">
-                    <canvas
-                        id="layer1"
-                        width="960"
-                        height="540"
-                        style="position:absolute; z-index: 0;">
-                    </canvas>
-                    <canvas
-                        id="layer2"
-                        width="960"
-                        height="540"
-                        style="position: absolute; z-index: 1;">
-                    </canvas>
-                </div>
-                <div style="position: relative; top: 560px;">
-                    <wired-combo id="quality" selected=100>
-                        <wired-item value=10>quality = 10</wired-item>
-                        <wired-item value=20>quality = 20</wired-item>
-                        <wired-item value=30>quality = 30</wired-item>
-                        <wired-item value=40>quality = 40</wired-item>
-                        <wired-item value=50>quality = 50</wired-item>
-                        <wired-item value=60>quality = 60</wired-item>
-                        <wired-item value=70>quality = 70</wired-item>
-                        <wired-item value=80>quality = 80</wired-item>
-                        <wired-item value=90>quality = 90</wired-item>
-                        <wired-item value=100>quality = 100</wired-item>
-                    </wired-combo>
-                    <wired-toggle id="toggle" style="top:20px"></wired-toggle><br><br>
-                    <wired-progress
-                        id="progress"
-                        value="0"
-                        min="0"
-                    max="100">
-                    </wired-progress><br><br>
-                    <wired-button 
-                        id = "start"
-                        type="button"
-                        value="start"
-                        onclick="starCap()"
-                        elevation="3">
-                        Start
-                    </wired-button>
-                    <wired-button  
-                        id = "end" 
-                        type="button" 
-                        value="end" 
-                        onclick="endCap()" 
-                        elevation="3" 
-                        style="left:10px;">
-                        End
-                    </wired-button>
-                    <wired-button  
-                        id = "screenShot" 
-                        type="button" 
-                        value="screenShot" 
-                        onclick="screenShot()" 
-                        elevation="3" 
-                        style="left:40px;">
-                        Screen Shot
-                    </wired-button>
-                </div>
-                <footer style="width:90%; bottom:0; position:absolute; background-color:white;">
-                    <a href="https://github.com/dennougorilla/gifgin">github</a>  /
-                    made by <a href="https://twitter.com/dennougorilla">dennougorilla</a>
-                </footer>
-    </body>
+            <div style="position: relative;">
+                <canvas id="layer1" width="960" height="540" style="position:absolute; z-index: 0;">
+                </canvas>
+                <canvas id="layer2" width="960" height="540" style="position: absolute; z-index: 1;">
+                </canvas>
+            </div>
+            <div style="position: relative; top: 560px;">
+                <wired-combo id="quality" selected=100>
+                    <wired-item value=10>quality = 10</wired-item>
+                    <wired-item value=20>quality = 20</wired-item>
+                    <wired-item value=30>quality = 30</wired-item>
+                    <wired-item value=40>quality = 40</wired-item>
+                    <wired-item value=50>quality = 50</wired-item>
+                    <wired-item value=60>quality = 60</wired-item>
+                    <wired-item value=70>quality = 70</wired-item>
+                    <wired-item value=80>quality = 80</wired-item>
+                    <wired-item value=90>quality = 90</wired-item>
+                    <wired-item value=100>quality = 100</wired-item>
+                </wired-combo>
+                <wired-toggle id="toggle" style="top:20px"></wired-toggle><br><br>
+                <wired-progress id="progress" value="0" min="0" max="100">
+                </wired-progress><br><br>
+                <wired-button id="start" type="button" value="start" onclick="starCap()" elevation="3">
+                    Start
+                </wired-button>
+                <wired-button id="end" type="button" value="end" onclick="endCap()" elevation="3" style="left:10px;">
+                    End
+                </wired-button>
+                <wired-button id="screenShot" type="button" value="screenShot" onclick="screenShot()" elevation="3"
+                    style="left:40px;">
+                    Screen Shot
+                </wired-button>
+            </div>
+            <footer style="width:90%; bottom:0; position:absolute; background-color:white;">
+                <a href="https://github.com/dennougorilla/gifgin">github</a> /
+                made by <a href="https://twitter.com/dennougorilla">dennougorilla</a>
+            </footer>
+</body>
+
 </html>
 
 <script>
@@ -95,18 +66,18 @@
     var progress = document.getElementById("progress")
     var toggle = document.getElementById("toggle")
     var quality = document.getElementById("quality")
-    var sp = document.getElementById("sp")   
+    var sp = document.getElementById("sp")
     var videoElem = document.createElement("video")
     var source = document.createElement("canvas");
     var cap = false
     var img = new Image();
     img.src = "selectScreen.png"
-    img.onload = function() {
+    img.onload = function () {
         layer1.getContext("2d").drawImage(img, 0, 0);
     }
 
-    toggle.addEventListener("change", 
-        function(e) {
+    toggle.addEventListener("change",
+        function (e) {
             if (toggle.checked) {
                 getDisplayVideo()
             } else {
@@ -116,7 +87,7 @@
         }, false);
 
     function getDisplayVideo() {
-        navigator.mediaDevices.getDisplayMedia({ 
+        navigator.mediaDevices.getDisplayMedia({
             video: {
                 width: 960,
                 height: 540,
@@ -138,13 +109,13 @@
         source.height = sdh
         layer1.getContext("2d").drawImage(videoElem, 0, 0, 960, 540);
         source.getContext("2d").drawImage(videoElem, sx, sy, sdw, sdh, 0, 0, sdw, sdh);
-        if(cap) {
-            gif.addFrame(source.getContext("2d"), {delay: 50, copy: true})
+        if (cap) {
+            gif.addFrame(source.getContext("2d"), { delay: 50, copy: true })
         }
     }
     function screenShot() {
-        progress.value = 100 
-        source.toBlob(function(blob) {
+        progress.value = 100
+        source.toBlob(function (blob) {
             window.open(URL.createObjectURL(blob));
         });
     }
@@ -159,10 +130,10 @@
             workers: 32,
             quality: quality.selected
         });
-        gif.on('progress', function(ptx){
-            progress.value = ptx*100 
+        gif.on('progress', function (ptx) {
+            progress.value = ptx * 100
         })
-        gif.on('finished', function(blob) {
+        gif.on('finished', function (blob) {
             window.open(URL.createObjectURL(blob));
         });
     }
@@ -180,12 +151,12 @@
         if (!is_down) {
             sp.spinning = true
             clear(layer2)
-            begin = {x: e.clientX - rect.left, y: e.clientY - rect.top};
+            begin = { x: e.clientX - rect.left, y: e.clientY - rect.top };
             is_down = true
         } else {
             sp.spinning = false
             is_down = false
-            end = {x: e.clientX - rect.left, y: e.clientY - rect.top};
+            end = { x: e.clientX - rect.left, y: e.clientY - rect.top };
             setXYWH(begin, end)
             var fill = "rgba(0, 0, 0, 0.5)";
             fillRect(layer2, 0, 0, layer2.width, begin.y, fill); // top
@@ -208,7 +179,7 @@
         sy = 0
         sdw = 960
         sdh = 540
-        ctx =  canvas.getContext("2d");
+        ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -224,14 +195,14 @@
         }
     }
     function fillRect(canvas, x, y, width, height, style) {
-        var ctx =  canvas.getContext("2d");
+        var ctx = canvas.getContext("2d");
         ctx.beginPath();
         ctx.rect(x, y, width, height);
         ctx.fillStyle = style;
         ctx.fill();
     }
     function drawRect(canvas, x, y, width, height, line, style) {
-        var ctx =  canvas.getContext("2d");
+        var ctx = canvas.getContext("2d");
         ctx.beginPath();
         ctx.rect(x, y, width, height);
         ctx.lineWidth = line;
